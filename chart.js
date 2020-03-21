@@ -274,6 +274,9 @@ class ChartWrapper {
             })
         }
 
+		// unique id for the series
+		series.id=Date.now();
+		
         // store the series for future redraw
         series.lr = lr; // forse non serve...
         this.serieses.push(series);
