@@ -442,6 +442,13 @@ class ChartWrapper {
         this.serieses.pop();
         this.redraw();
     }
+		
+	remove(Id) {
+		var Index=chart.serieses.findIndex(obj => obj.id === Id);
+		this.chart.data.datasets.splice(Index,1);
+        this.serieses.splice(Index,1);
+        this.redraw();	
+	}
 
     redraw() {
         var self = this;
