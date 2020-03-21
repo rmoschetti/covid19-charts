@@ -426,7 +426,7 @@ class ChartWrapper {
             + "origin <b>" + days_passed.toFixed(1) + "</b> days ago: "
             + "<b>" + first_day.getDate() + " " + months[first_day.getMonth()]+ " " + first_day.getFullYear() + "</b>"
             + "<!-- m="+lr.m+" "
-            + "q="+lr.q+" --></li>"
+            + "q="+lr.q+" --><button name=\"chart_remove\" onclick=\"chart.remove(" + series.id + ")\">X</button></li>"
             );
     }
     
