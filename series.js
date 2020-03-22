@@ -70,3 +70,12 @@ function linearRegression(data_y, data_x){
         r2: Math.pow((n*xy - x*y)/Math.sqrt((n*xx-x*x)*(n*yy-y*y)),2)
     }
 }
+
+function linearRegressionLogistic(data_y, data_x){
+	var xmax=data_x[data_x.length-1]
+	var ymax=data_y[data_x.length-1]
+    return {
+        xmax: xmax,
+		ymax: ymax
+    }
+}

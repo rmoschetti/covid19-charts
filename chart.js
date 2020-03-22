@@ -128,6 +128,7 @@ class ChartWrapper {
         this.rate_plot = false;
         this.no_update = false;
         this.draw_fit = false;
+        this.draw_fit_logistic = false;
         this.n_points = 0; // all
         this.fit_future_days = null;
         this.up_to_date = null;
@@ -138,6 +139,7 @@ class ChartWrapper {
         this.$time_shift = $("input[name=time_shift]");
         this.$plot_type = $("select[name=chart_type]");
         this.$draw_fit = $("input[name=draw_fit");
+        this.$draw_fit_logistic = $("input[name=draw_fit_logistic]");
         this.$n_points = $("select[name='n_points']");
         this.$advanced_settings = $("input[name='advanced_settings']");
         this.$axis_count_min = $("input[name='axis_count_min']");
@@ -174,6 +176,12 @@ class ChartWrapper {
             self.redraw();
         })
         this.$draw_fit.change();
+		
+		this.$draw_fit_logistic.change(function(){
+            self.draw_fit_logistic = self.$draw_fit_logistic.is(":checked");
+            self.redraw();
+        })
+        this.$draw_fit_logistic.change();
 
         this.$n_points.change(function() {
             var val = self.$n_points.children("option:selected").val();
@@ -247,6 +255,8 @@ class ChartWrapper {
         this.$plot_type.change();
         this.$draw_fit.prop('checked', options['draw_fit']);
         this.$draw_fit.change();
+		this.$draw_fit_logistic.prop('checked', options['draw_fit_logistic']);
+        this.$draw_fit_logistic.change();
         this.$n_points.val(options['n_points'] || "");
         this.$n_points.change();
         this.$axis_count_min.val(options['axis_count_min']);
@@ -295,6 +305,8 @@ class ChartWrapper {
 
         // compute linear regression
         var lr = linearRegression(data_y.map(Math.log), data_x)
+	
+		var lrLogistic = linearRegressionLogistic(data_y, data_x)
 
         // time shift
         var offset = 0;
@@ -400,29 +412,35 @@ class ChartWrapper {
                 pointHoverBorderColor: series.color,
                 my_x_offset: offset - this.reference_point.x
             })
-        }
-		
+		}
+        		
 		// draw logistic curve
 		if (this.draw_fit_logistic && data_x.length>1) {
-            var start = date_to_days(data_x[0]) - offset;
-            var end = date_to_days(last(data_x)) - offset + 5.0;
+            var start = data_x[0];
+            var end = last(data_x) + this.fit_future_days;
             var points = new Array(100);
             for (var i=0;i<points.length;++i) {
                 var x = start + (end-start)*i/(points.length-1);
-				points[i] = {
-                    x: days_to_date(x + offset),
+                points[i] = {
+                    x: this.time_shift ? x + offset - this.reference_point.x : days_to_date(x),
                     y: this.rate_plot ? 100.0*(Math.exp(lr.m)-1) : 2*lrLogistic.ymax/(1+Math.exp(-lr.m * x + lrLogistic.xmax*lr.m))
                 }
             }
-			this.chart.data.datasets.push({
+            this.chart.data.datasets.push({
                 data: points,
                 fill: false,
-                label: "fit logistic",
+                label: 'fit logistic',
                 yAxisID: (this.rate_plot ? "rate" : "count"),
+                xAxisID: (this.time_shift ? "days" : "date"),
                 pointRadius: 0,
                 borderWidth: 1,
-                pointHoverRadius: 0,
-                borderColor: series.color
+                pointHoverRadius: 3,
+                borderColor: series.color,
+                pointBorderColor: series.color,
+                pointBackgroundColor: series.color,
+                hoverBorderColor: series.color,
+                pointHoverBorderColor: series.color,
+                my_x_offset: offset - this.reference_point.x
             })
         }
 		
