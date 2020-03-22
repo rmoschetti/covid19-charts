@@ -401,6 +401,31 @@ class ChartWrapper {
                 my_x_offset: offset - this.reference_point.x
             })
         }
+		
+		// draw logistic curve
+		if (this.draw_fit_logistic && data_x.length>1) {
+            var start = date_to_days(data_x[0]) - offset;
+            var end = date_to_days(last(data_x)) - offset + 5.0;
+            var points = new Array(100);
+            for (var i=0;i<points.length;++i) {
+                var x = start + (end-start)*i/(points.length-1);
+				points[i] = {
+                    x: days_to_date(x + offset),
+                    y: this.rate_plot ? 100.0*(Math.exp(lr.m)-1) : 2*lrLogistic.ymax/(1+Math.exp(-lr.m * x + lrLogistic.xmax*lr.m))
+                }
+            }
+			this.chart.data.datasets.push({
+                data: points,
+                fill: false,
+                label: "fit logistic",
+                yAxisID: (this.rate_plot ? "rate" : "count"),
+                pointRadius: 0,
+                borderWidth: 1,
+                pointHoverRadius: 0,
+                borderColor: series.color
+            })
+        }
+		
 
 		// unique id for the series
 		series.id=Date.now();
