@@ -141,11 +141,13 @@ class ChartWrapper {
         this.$draw_fit = $("input[name=draw_fit");
         this.$draw_fit_logistic = $("input[name=draw_fit_logistic]");
         this.$n_points = $("select[name='n_points']");
+		this.$inflection = $("input[name='inflection']");
         this.$advanced_settings = $("input[name='advanced_settings']");
         this.$axis_count_min = $("input[name='axis_count_min']");
         this.$axis_count_max = $("input[name='axis_count_max']");
         this.$fit_future_days = $("input[name='fit_future_days']");
         this.$up_to_date = $("input[name='up_to_date']");
+
     
         this.$clear.click(function(){ 
             self.clear(); 
@@ -193,6 +195,17 @@ class ChartWrapper {
             self.redraw();
         });
         this.$n_points.change();
+		
+		this.$inflection.change(function() {
+            var val = self.$inflection.val();
+            if (val === "") {
+                self.inflection = 0;
+            } else {
+                self.inflection = parseInt(val);
+            }
+            self.redraw();
+        });
+        this.$inflection.change();
 
         this.$up_to_date.datepicker();
         this.$up_to_date.change(function() {
@@ -305,8 +318,8 @@ class ChartWrapper {
 
         // compute linear regression
         var lr = linearRegression(data_y.map(Math.log), data_x)
-	
-		var lrLogistic = linearRegressionLogistic(data_y, data_x)
+		console.log(this.inflection)
+		var lrLogistic = linearRegressionLogistic(data_y, data_x, this.inflection)
 
         // time shift
         var offset = 0;
